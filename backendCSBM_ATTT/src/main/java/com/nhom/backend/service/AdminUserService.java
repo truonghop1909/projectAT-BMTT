@@ -3,10 +3,16 @@ package com.nhom.backend.service;
 import com.nhom.backend.dto.user.UserCreateRequest;
 import com.nhom.backend.dto.user.UserResponse;
 import com.nhom.backend.dto.user.UserUpdateRequest;
+import com.nhom.backend.entity.EmployeeEntity;
 import com.nhom.backend.entity.UserEntity;
 import com.nhom.backend.exception.BadRequestException;
 import com.nhom.backend.exception.ResourceNotFoundException;
+import com.nhom.backend.repository.EmployeeRepository;
+import com.nhom.backend.repository.FileUploadRepository;
 import com.nhom.backend.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,17 +20,18 @@ import java.util.List;
 
 @Service // Đánh dấu class này là Service (xử lý business logic)
 public class AdminUserService {
-
-    // Repository dùng để thao tác với DB (CRUD)
     private final UserRepository userRepository;
-
-    // Dùng để mã hóa mật khẩu (BCrypt)
+    private final EmployeeRepository employeeRepository;        
     private final PasswordEncoder passwordEncoder;
+    private final FileUploadRepository fileUploadRepository;
 
-    // Constructor injection (Spring tự inject bean)
     public AdminUserService(UserRepository userRepository,
-                            PasswordEncoder passwordEncoder) {
+            EmployeeRepository employeeRepository,
+            FileUploadRepository fileUploadRepository,
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.employeeRepository = employeeRepository;
+        this.fileUploadRepository = fileUploadRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -56,8 +63,8 @@ public class AdminUserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         // Nếu không truyền role thì mặc định là USER
-        user.setRole(request.getRole() == null || request.getRole().isBlank() 
-                ? "USER" 
+        user.setRole(request.getRole() == null || request.getRole().isBlank()
+                ? "USER"
                 : request.getRole());
 
         // Mặc định user đang active
@@ -127,13 +134,17 @@ public class AdminUserService {
     /**
      * Xóa user
      */
+    @Transactional
     public void delete(Long id) {
-
-        // Tìm user theo id
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // Xóa user khỏi DB
+        EmployeeEntity employee = employeeRepository.findByUserId(user.getId()).orElse(null);
+        if (employee != null) {
+            fileUploadRepository.deleteByEmployeeId(employee.getId());
+            employeeRepository.delete(employee);
+        }
+
         userRepository.delete(user);
     }
 
@@ -166,7 +177,6 @@ public class AdminUserService {
                 user.getId(),
                 user.getUsername(),
                 user.getRole(),
-                user.getActive()
-        );
+                user.getActive());
     }
 }

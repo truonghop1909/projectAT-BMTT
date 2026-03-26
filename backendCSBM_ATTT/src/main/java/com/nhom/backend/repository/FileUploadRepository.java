@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface FileUploadRepository extends JpaRepository<FileUploadEntity, Long> {
     List<FileUploadEntity> findByEmployee(EmployeeEntity employee);
     Optional<FileUploadEntity> findByIdAndEmployee(Long id, EmployeeEntity employee);
+    void deleteByEmployeeId(Long employeeId);
 }

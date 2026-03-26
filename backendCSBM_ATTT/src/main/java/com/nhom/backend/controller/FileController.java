@@ -1,5 +1,6 @@
 package com.nhom.backend.controller;
 
+import com.nhom.backend.dto.file.FileContentResponse;
 import com.nhom.backend.dto.file.FileDecryptResponse;
 import com.nhom.backend.dto.file.FileUploadResponse;
 import com.nhom.backend.entity.FileUploadEntity;
@@ -36,8 +37,7 @@ public class FileController {
     public ResponseEntity<FileUploadResponse> upload(
             @RequestAttribute("currentUser") UserEntity currentUser,
             @RequestParam("file") MultipartFile file,
-            @RequestParam("dataPassword") String dataPassword
-    ) throws Exception {
+            @RequestParam("dataPassword") String dataPassword) throws Exception {
         return ResponseEntity.ok(fileStorageService.upload(currentUser, file, dataPassword));
     }
 
@@ -47,8 +47,7 @@ public class FileController {
      */
     @GetMapping("/my-files")
     public ResponseEntity<List<FileUploadEntity>> getMyFiles(
-            @RequestAttribute("currentUser") UserEntity currentUser
-    ) {
+            @RequestAttribute("currentUser") UserEntity currentUser) {
         return ResponseEntity.ok(fileStorageService.getMyFiles(currentUser));
     }
 
@@ -59,8 +58,7 @@ public class FileController {
     @GetMapping("/{fileId}")
     public ResponseEntity<FileUploadEntity> getFileDetail(
             @RequestAttribute("currentUser") UserEntity currentUser,
-            @PathVariable Long fileId
-    ) {
+            @PathVariable Long fileId) {
         return ResponseEntity.ok(fileStorageService.getMyFileDetail(currentUser, fileId));
     }
 
@@ -74,8 +72,7 @@ public class FileController {
     public ResponseEntity<FileDecryptResponse> decrypt(
             @RequestAttribute("currentUser") UserEntity currentUser,
             @PathVariable Long fileId,
-            @RequestParam("dataPassword") String dataPassword
-    ) throws Exception {
+            @RequestParam("dataPassword") String dataPassword) throws Exception {
         return ResponseEntity.ok(fileStorageService.decryptFile(currentUser, fileId, dataPassword));
     }
 
@@ -89,8 +86,7 @@ public class FileController {
     public ResponseEntity<Resource> downloadDecrypted(
             @RequestAttribute("currentUser") UserEntity currentUser,
             @PathVariable Long fileId,
-            @RequestParam("dataPassword") String dataPassword
-    ) throws Exception {
+            @RequestParam("dataPassword") String dataPassword) throws Exception {
         Resource resource = fileStorageService.downloadDecryptedFile(currentUser, fileId, dataPassword);
         String filename = resource.getFilename() == null ? "download.bin" : resource.getFilename();
 
@@ -108,9 +104,20 @@ public class FileController {
     @DeleteMapping("/{fileId}")
     public ResponseEntity<String> deleteMyFile(
             @RequestAttribute("currentUser") UserEntity currentUser,
-            @PathVariable Long fileId
-    ) throws Exception {
+            @PathVariable Long fileId) throws Exception {
         fileStorageService.deleteMyFile(currentUser, fileId);
         return ResponseEntity.ok("Deleted file successfully");
     }
+
+    /**
+     * Xem nội dung file text của chính mình
+     */
+    @GetMapping("/view-content/{fileId}")
+    public ResponseEntity<FileContentResponse> viewMyFileContent(
+            @RequestAttribute("currentUser") UserEntity currentUser,
+            @PathVariable Long fileId,
+            @RequestParam("dataPassword") String dataPassword) throws Exception {
+        return ResponseEntity.ok(fileStorageService.viewMyFileContent(currentUser, fileId, dataPassword));
+    }
+
 }

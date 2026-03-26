@@ -17,6 +17,8 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.nhom.backend.dto.file.FileContentResponse;
+import java.nio.charset.StandardCharsets;
 
 import java.io.File;
 import java.nio.file.*;
@@ -211,5 +213,69 @@ public class FileStorageService {
             file.setUpdatedAt(LocalDateTime.now().toString());
             fileUploadRepository.save(file);
         }
+    }
+
+    public FileContentResponse viewMyFileContent(UserEntity currentUser, Long fileId, String dataPassword)
+            throws Exception {
+        EmployeeEntity employee = getEmployeeByUser(currentUser);
+        return viewFileContentInternal(currentUser, employee, fileId, dataPassword, false);
+    }
+
+    public FileContentResponse viewFileContentByOwnerUserId(
+            UserEntity currentUser,
+            Long ownerUserId,
+            Long fileId,
+            String ownerDataPassword) throws Exception {
+        EmployeeEntity ownerEmployee = employeeRepository.findByUserId(ownerUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Owner employee not found"));
+
+        return viewFileContentInternal(currentUser, ownerEmployee, fileId, ownerDataPassword, true);
+    }
+
+    private FileContentResponse viewFileContentInternal(
+            UserEntity currentUser,
+            EmployeeEntity ownerEmployee,
+            Long fileId,
+            String dataPassword,
+            boolean viewingOtherUser) throws Exception {
+        verifyDataPassword(ownerEmployee, dataPassword);
+
+        FileUploadEntity fileUpload = fileUploadRepository.findByIdAndEmployee(fileId, ownerEmployee)
+                .orElseThrow(() -> new ResourceNotFoundException("File not found"));
+
+        Files.createDirectories(Paths.get(decryptedDir));
+
+        byte[] aesKey = getAesKey(ownerEmployee, dataPassword);
+
+        Path inputPath = Paths.get(fileUpload.getStoredPath());
+        Path outputPath = Paths.get(
+                decryptedDir,
+                "preview_" + System.currentTimeMillis() + "_" + fileUpload.getOriginalFileName());
+
+        AesCore.decryptFile(inputPath, outputPath, aesKey);
+
+        if (!Files.exists(outputPath)) {
+            throw new ResourceNotFoundException("Decrypted file not found");
+        }
+
+        String content = Files.readString(outputPath, StandardCharsets.UTF_8);
+
+        Files.deleteIfExists(outputPath);
+
+        auditLogService.save(
+                currentUser.getUsername(),
+                viewingOtherUser ? "VIEW_OTHER_FILE_CONTENT" : "VIEW_MY_FILE_CONTENT",
+                "FILE",
+                fileUpload.getId(),
+                (viewingOtherUser
+                        ? "View content of other user's file: "
+                        : "View own file content: ")
+                        + fileUpload.getOriginalFileName());
+
+        return new FileContentResponse(
+                fileUpload.getId(),
+                fileUpload.getOriginalFileName(),
+                content,
+                "View file content success");
     }
 }

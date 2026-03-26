@@ -1,4 +1,10 @@
-import "./globals.css";
+import './globals.css';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'CSBM & ATTT',
+  description: 'Frontend quản lý nhân viên và file',
+};
 
 export default function RootLayout({
   children,
@@ -6,10 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="vi">
+      <body>{children}</body>
     </html>
   );
 }
