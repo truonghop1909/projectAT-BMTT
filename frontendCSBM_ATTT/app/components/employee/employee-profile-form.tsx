@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type {
   Employee,
   EmployeeCreateRequest,
@@ -11,6 +11,7 @@ type Props = {
   mode: 'create' | 'update';
   initialData?: Employee | null;
   loading?: boolean;
+  currentDataPassword?: string;
   onSubmit: (payload: EmployeeCreateRequest | EmployeeUpdateRequest) => Promise<void> | void;
 };
 
@@ -102,9 +103,14 @@ export default function EmployeeProfileForm({
   mode,
   initialData,
   loading,
+  currentDataPassword = '',
   onSubmit,
 }: Props) {
   const [form, setForm] = useState<FormState>(() => buildInitialState(initialData));
+
+  useEffect(() => {
+    setForm(buildInitialState(initialData));
+  }, [initialData]);
 
   const title = useMemo(
     () => (mode === 'create' ? 'Tạo hồ sơ cá nhân' : 'Cập nhật hồ sơ cá nhân'),
@@ -171,7 +177,7 @@ export default function EmployeeProfileForm({
       permanentAddress: form.permanentAddress || undefined,
       bankName: form.bankName || undefined,
       bankAccountNumber: form.bankAccountNumber || undefined,
-      dataPassword: form.dataPassword || undefined,
+      dataPassword: currentDataPassword || undefined,
     };
 
     await onSubmit(payload);
@@ -229,13 +235,16 @@ export default function EmployeeProfileForm({
         <Field label="Địa chỉ thường trú" value={form.permanentAddress} onChange={(v) => setField('permanentAddress', v)} />
         <Field label="Ngân hàng" value={form.bankName} onChange={(v) => setField('bankName', v)} />
         <Field label="Số tài khoản" value={form.bankAccountNumber} onChange={(v) => setField('bankAccountNumber', v)} />
-        <Field
-          label={mode === 'create' ? 'Data password' : 'Data password hiện tại'}
-          type="password"
-          value={form.dataPassword}
-          onChange={(v) => setField('dataPassword', v)}
-          placeholder={mode === 'create' ? 'Bắt buộc khi tạo hồ sơ' : 'Nhập để backend giải mã và mã hóa lại'}
-        />
+
+        {mode === 'create' ? (
+          <Field
+            label="Data password"
+            type="password"
+            value={form.dataPassword}
+            onChange={(v) => setField('dataPassword', v)}
+            placeholder="Bắt buộc khi tạo hồ sơ"
+          />
+        ) : null}
       </div>
 
       <div className="mt-6">
