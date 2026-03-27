@@ -15,4 +15,7 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity, Long>,
     @Query("select count(e) from EmployeeEntity e")
     long countAllEmployees();
     Optional<EmployeeEntity> findByUserId(Long userId);
+
+    @Query(value = "SELECT MAX(CAST(SUBSTRING(code, 4) AS UNSIGNED)) FROM employees_information", nativeQuery = true)
+    Long findMaxEmployeeCodeNumber();
 }

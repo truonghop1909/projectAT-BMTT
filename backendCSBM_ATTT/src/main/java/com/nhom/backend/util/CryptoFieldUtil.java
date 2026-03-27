@@ -1,7 +1,6 @@
 package com.nhom.backend.util;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 public class CryptoFieldUtil {
 
@@ -13,14 +12,14 @@ public class CryptoFieldUtil {
             return null;
         }
         byte[] encrypted = AesCore.encrypt(plainText.getBytes(StandardCharsets.UTF_8), aesKey);
-        return Base64.getEncoder().encodeToString(encrypted);
+        return Base64Core.encode(encrypted);
     }
 
     public static String decryptString(String cipherBase64, byte[] aesKey) {
         if (cipherBase64 == null) {
             return null;
         }
-        byte[] cipherBytes = Base64.getDecoder().decode(cipherBase64);
+        byte[] cipherBytes = Base64Core.decode(cipherBase64);
         byte[] plainBytes = AesCore.decrypt(cipherBytes, aesKey);
         return new String(plainBytes, StandardCharsets.UTF_8);
     }

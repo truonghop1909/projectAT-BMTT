@@ -2,7 +2,6 @@ package com.nhom.backend.util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.Base64;
 
 public class Pbkdf2Core {
 
@@ -91,9 +90,9 @@ public class Pbkdf2Core {
     public static String encodePbkdf2(String password, byte[] salt, int iterations, int dkLen) {
         byte[] key = deriveKey(password, salt, iterations, dkLen);
         return "pbkdf2_sha256$" + iterations + "$"
-                + Base64.getEncoder().withoutPadding().encodeToString(salt)
+                + Base64Core.encodeWithoutPadding(salt)
                 + "$"
-                + Base64.getEncoder().withoutPadding().encodeToString(key);
+                + Base64Core.encodeWithoutPadding(key);
     }
 
     public static boolean verifyPassword(String rawPassword, String encoded) {
@@ -103,8 +102,8 @@ public class Pbkdf2Core {
         }
 
         int iterations = Integer.parseInt(parts[1]);
-        byte[] salt = Base64.getDecoder().decode(parts[2]);
-        byte[] expected = Base64.getDecoder().decode(parts[3]);
+        byte[] salt = Base64Core.decode(parts[2]);
+        byte[] expected = Base64Core.decode(parts[3]);
 
         byte[] actual = deriveKey(rawPassword, salt, iterations, expected.length);
 

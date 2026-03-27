@@ -13,7 +13,8 @@ public class EmployeeCodeGeneratorService {
     }
 
     public synchronized String generateNextCode() {
-        long total = employeeRepository.countAllEmployees() + 1;
-        return String.format("EMP%05d", total);
+        Long maxNumber = employeeRepository.findMaxEmployeeCodeNumber();
+        long nextNumber = (maxNumber == null) ? 1 : maxNumber + 1;
+        return String.format("EMP%05d", nextNumber);
     }
 }
