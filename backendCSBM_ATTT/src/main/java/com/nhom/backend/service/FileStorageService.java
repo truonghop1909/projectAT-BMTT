@@ -10,7 +10,6 @@ import com.nhom.backend.exception.ResourceNotFoundException;
 import com.nhom.backend.repository.EmployeeRepository;
 import com.nhom.backend.repository.FileUploadRepository;
 import com.nhom.backend.util.AesCore;
-import com.nhom.backend.util.CryptoFieldUtil;
 import com.nhom.backend.util.Pbkdf2Core;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -33,9 +32,6 @@ public class FileStorageService {
     private final FileUploadRepository fileUploadRepository;
     private final AuditLogService auditLogService;
 
-    @Value("${app.upload-dir}")
-    private String uploadDir;
-
     @Value("${app.encrypted-dir}")
     private String encryptedDir;
 
@@ -54,7 +50,6 @@ public class FileStorageService {
         EmployeeEntity employee = getEmployeeByUser(currentUser);
         verifyDataPassword(employee, dataPassword);
 
-        Files.createDirectories(Paths.get(uploadDir));
         Files.createDirectories(Paths.get(encryptedDir));
 
         byte[] aesKey = getAesKey(employee, dataPassword);
@@ -64,13 +59,27 @@ public class FileStorageService {
             originalFileName = "unknown.bin";
         }
 
-        String rawName = System.currentTimeMillis() + "_" + originalFileName;
-        Path rawPath = Paths.get(uploadDir, rawName);
-        Files.copy(file.getInputStream(), rawPath, StandardCopyOption.REPLACE_EXISTING);
-
-        String encryptedName = rawName + ".enc";
+        String encryptedName = System.currentTimeMillis() + "_" + originalFileName + ".enc";
         Path encryptedPath = Paths.get(encryptedDir, encryptedName);
-        AesCore.encryptFile(rawPath, encryptedPath, aesKey);
+
+        Path tempRawFile = null;
+
+        try {
+            // Tạo file tạm để phục vụ mã hóa, không lưu cố định vào project
+            tempRawFile = Files.createTempFile("upload_", "_" + originalFileName);
+
+            // Ghi nội dung upload vào file tạm
+            Files.copy(file.getInputStream(), tempRawFile, StandardCopyOption.REPLACE_EXISTING);
+
+            // Chỉ lưu file mã hóa vào thư mục encrypted
+            AesCore.encryptFile(tempRawFile, encryptedPath, aesKey);
+
+        } finally {
+            // Xóa file gốc tạm ngay sau khi mã hóa xong
+            if (tempRawFile != null) {
+                Files.deleteIfExists(tempRawFile);
+            }
+        }
 
         FileUploadEntity entity = new FileUploadEntity();
         entity.setFileName(encryptedName);

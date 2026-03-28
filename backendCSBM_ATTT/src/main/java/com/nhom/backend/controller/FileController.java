@@ -29,8 +29,9 @@ public class FileController {
      * API upload file của user hiện tại
      * - Nhận file từ multipart/form-data
      * - Nhận dataPassword để xác thực và sinh AES key
-     * - File gốc được lưu vào thư mục upload
-     * - Sau đó file được mã hóa và lưu sang thư mục encrypted
+     * - File upload sẽ được mã hóa
+     * - Hệ thống chỉ lưu file mã hóa trong thư mục encrypted
+     * - Không lưu file gốc cố định trong project
      * - Trả về thông tin file đã upload
      */
     @PostMapping("/upload")
