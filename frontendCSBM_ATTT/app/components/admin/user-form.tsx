@@ -10,7 +10,7 @@ type Props = {
   onSubmit: (payload: UserCreateRequest | UserUpdateRequest) => Promise<void> | void;
 };
 
-const ROLE_OPTIONS = ['ADMIN', 'EMPLOYEE', 'USER'];
+const ROLE_OPTIONS = ['ADMIN', 'USER'];
 
 export default function UserForm({
   mode,

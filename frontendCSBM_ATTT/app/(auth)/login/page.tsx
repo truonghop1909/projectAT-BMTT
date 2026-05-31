@@ -13,6 +13,7 @@ import {
 } from '@/lib/auth';
 import { getErrorMessage } from '@/lib/utils';
 import PageTitle from '@/app/components/common/page-title';
+import Link from 'next/dist/client/link';
 
 function extractToken(data: any): string {
   return data?.token || data?.accessToken || data?.jwt || '';
@@ -110,6 +111,12 @@ export default function LoginPage() {
             {submitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
+        <div className="mt-5 text-center text-sm text-slate-600">
+          Chưa có tài khoản?{' '}
+          <Link href="/register" className="font-medium text-slate-900 underline">
+            Đăng ký
+          </Link>
+        </div>
       </div>
     </div>
   );
