@@ -1,6 +1,6 @@
 package com.nhom.backend.service;
 
-import com.nhom.backend.dto.user.UserCreateRequest;
+import com.nhom.backend.dto.auth.RegisterRequest;
 import com.nhom.backend.dto.user.UserResponse;
 import com.nhom.backend.dto.user.UserUpdateRequest;
 import com.nhom.backend.entity.EmployeeEntity;
@@ -38,7 +38,7 @@ public class AdminUserService {
     /**
      * Tạo user mới
      */
-    public UserResponse create(UserCreateRequest request) {
+    public UserResponse create(RegisterRequest request) {
 
         // Validate username không được null hoặc rỗng
         if (request.getUsername() == null || request.getUsername().isBlank()) {

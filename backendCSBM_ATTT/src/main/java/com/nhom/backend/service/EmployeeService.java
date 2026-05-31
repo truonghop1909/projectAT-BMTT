@@ -27,6 +27,7 @@ public class EmployeeService {
     private final AuditLogService auditLogService;
     private final EmployeeCodeGeneratorService employeeCodeGeneratorService;
     private final FileStorageService fileStorageService;
+
     public EmployeeService(EmployeeRepository employeeRepository,
             AuditLogService auditLogService,
             EmployeeCodeGeneratorService employeeCodeGeneratorService,
@@ -65,7 +66,7 @@ public class EmployeeService {
         employee.setLevel(request.getLevel());
         employee.setGraduationYear(request.getGraduationYear());
         employee.setEducation(request.getEducation());
-
+        // ma hoa
         applyEncryptedFields(employee, request, aesKey);
 
         employee.setDataSalt(saltBase64);
@@ -121,7 +122,7 @@ public class EmployeeService {
         employee.setLevel(request.getLevel());
         employee.setGraduationYear(request.getGraduationYear());
         employee.setEducation(request.getEducation());
-
+        // ma hoa
         applyEncryptedFields(employee, request, aesKey);
 
         employee.setUpdatedAt(LocalDateTime.now().toString());
@@ -245,17 +246,17 @@ public class EmployeeService {
             response.setBankName(CryptoFieldUtil.decryptString(employee.getBankNameEnc(), aesKey));
             response.setBankAccountNumber(CryptoFieldUtil.decryptString(employee.getBankAccountNumberEnc(), aesKey));
         } else {
-            response.setEmail("****");
-            response.setTaxCode("****");
-            response.setSocialInsuranceCode("****");
-            response.setPhoneNumber("****");
-            response.setCitizenIdentificationCode("****");
-            response.setPersonalEmail("****");
-            response.setBirthplace("****");
-            response.setCurrentAddress("****");
-            response.setPermanentAddress("****");
-            response.setBankName("****");
-            response.setBankAccountNumber("****");
+            response.setEmail(CryptoFieldUtil.mask());
+            response.setTaxCode(CryptoFieldUtil.mask());
+            response.setSocialInsuranceCode(CryptoFieldUtil.mask());
+            response.setPhoneNumber(CryptoFieldUtil.mask());
+            response.setCitizenIdentificationCode(CryptoFieldUtil.mask());
+            response.setPersonalEmail(CryptoFieldUtil.mask());
+            response.setBirthplace(CryptoFieldUtil.mask());
+            response.setCurrentAddress(CryptoFieldUtil.mask());
+            response.setPermanentAddress(CryptoFieldUtil.mask());
+            response.setBankName(CryptoFieldUtil.mask());
+            response.setBankAccountNumber(CryptoFieldUtil.mask());
         }
 
         return response;

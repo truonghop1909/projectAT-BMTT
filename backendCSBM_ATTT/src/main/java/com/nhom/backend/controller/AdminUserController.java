@@ -1,6 +1,6 @@
 package com.nhom.backend.controller;
 
-import com.nhom.backend.dto.user.UserCreateRequest;
+import com.nhom.backend.dto.auth.RegisterRequest;
 import com.nhom.backend.dto.user.UserResponse;
 import com.nhom.backend.dto.user.UserUpdateRequest;
 import com.nhom.backend.service.AdminUserService;
@@ -27,7 +27,7 @@ public class AdminUserController {
      * URL: /api/admin/users
      */
     @PostMapping
-    public ResponseEntity<UserResponse> create(@RequestBody UserCreateRequest request) {
+    public ResponseEntity<UserResponse> create(@RequestBody RegisterRequest request) {
 
         // Gọi service để tạo user
         return ResponseEntity.ok(adminUserService.create(request));

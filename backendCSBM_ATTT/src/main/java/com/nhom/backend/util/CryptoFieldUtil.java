@@ -24,10 +24,7 @@ public class CryptoFieldUtil {
         return new String(plainBytes, StandardCharsets.UTF_8);
     }
 
-    public static String mask(String value) {
-        if (value == null || value.isBlank()) {
-            return "****";
-        }
+    public static String mask() {
         return "****";
     }
 }

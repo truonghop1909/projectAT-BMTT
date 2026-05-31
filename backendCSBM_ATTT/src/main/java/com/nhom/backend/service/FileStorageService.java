@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nhom.backend.dto.file.FileContentResponse;
 import java.nio.charset.StandardCharsets;
 
-import java.io.File;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.Base64;
